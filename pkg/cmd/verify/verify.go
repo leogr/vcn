@@ -32,6 +32,12 @@ func NewCmdVerify() *cobra.Command {
 		Long:    ``,
 		RunE:    runVerify,
 		Args: func(cmd *cobra.Command, args []string) error {
+			if org := viper.GetString("verify_org"); org != "" {
+				if keys := viper.GetStringSlice("verify_keys"); len(keys) > 0 {
+					return fmt.Errorf("cannot use both --org and other key(s)")
+				}
+			}
+
 			if hash, _ := cmd.Flags().GetString("hash"); hash != "" {
 				if len(args) > 0 {
 					return fmt.Errorf("cannot use arg(s) with --hash")
@@ -47,10 +53,12 @@ func NewCmdVerify() *cobra.Command {
 	)
 
 	cmd.Flags().StringSliceP("key", "k", nil, "accept only verification matching the passed key(s)")
+	cmd.Flags().String("org", "", "accept only verification matching the passed organisation's ID, if set no other key(s) can be used")
 	cmd.Flags().String("hash", "", "specify a hash to verify, if set no arg(s) can be used")
 
-	// Bind to VCN_VERIFY_KEYS env var
+	// Bind to VCN_VERIFY_KEYS and VCN_VERIFY_ORG env vars
 	viper.BindPFlag("verify_keys", cmd.Flags().Lookup("key"))
+	viper.BindPFlag("verify_org", cmd.Flags().Lookup("org"))
 
 	return cmd
 }
@@ -61,13 +69,24 @@ func runVerify(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	keys := viper.GetStringSlice("verify_keys")
-
 	output, err := cmd.Flags().GetString("output")
 	if err != nil {
 		return err
 	}
+
 	cmd.SilenceUsage = true
+
+	org := viper.GetString("verify_org")
+	var keys []string
+	if org != "" {
+		bo, err := api.BlockChainGetOrganisation(org)
+		if err != nil {
+			return err
+		}
+		keys = bo.MembersKeys()
+	} else {
+		keys = viper.GetStringSlice("verify_keys")
+	}
 
 	user := api.NewUser(store.Config().CurrentContext)
 
@@ -76,7 +95,7 @@ func runVerify(cmd *cobra.Command, args []string) error {
 		a := &api.Artifact{
 			Hash: hash,
 		}
-		if err := verify(cmd, a, keys, user, output); err != nil {
+		if err := verify(cmd, a, keys, org, user, output); err != nil {
 			return err
 		}
 		return nil
@@ -88,7 +107,7 @@ func runVerify(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		if err := verify(cmd, a, keys, user, output); err != nil {
+		if err := verify(cmd, a, keys, org, user, output); err != nil {
 			return err
 		}
 	}
@@ -96,7 +115,7 @@ func runVerify(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func verify(cmd *cobra.Command, a *api.Artifact, keys []string, user *api.User, output string) (err error) {
+func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user *api.User, output string) (err error) {
 	var verification *api.BlockchainVerification
 	// if keys have been passed, check for a verification matching them
 	if len(keys) > 0 {
@@ -138,6 +157,8 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, user *api.User, 
 
 	if !verification.Trusted() {
 		switch true {
+		case org != "":
+			return fmt.Errorf(`%s is not verified by "%s"`, a.Hash, org)
 		case len(keys) == 1:
 			return fmt.Errorf("%s is not verified by %s", a.Hash, keys[0])
 		case len(keys) > 1:
