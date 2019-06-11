@@ -145,8 +145,8 @@ If an asset you or your organization wants to trust needs to be verified against
 
 - Add a `--key` flag in front of each key you want to add  
 (eg. `--key 0x0...1 --key 0x0...2`)
-- Or set the env var `VCN_VERIFY_KEYS` correctly by using a space to separate each key (eg. `VCN_VERIFY_KEYS=0x0...1 0x0...2`)
-> Be aware that using the `--key` flag will take precedence over `VCN_VERIFY_KEYS`.
+- Or set the env var `VCN_KEY` correctly by using a space to separate each key (eg. `VCN_KEY=0x0...1 0x0...2`)
+> Be aware that using the `--key` flag will take precedence over `VCN_KEY`.
 
 The asset verification will succeed only if the asset has been signed by at least one of the signers.
 

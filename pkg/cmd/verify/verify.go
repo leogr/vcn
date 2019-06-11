@@ -32,8 +32,8 @@ func NewCmdVerify() *cobra.Command {
 		Long:    ``,
 		RunE:    runVerify,
 		Args: func(cmd *cobra.Command, args []string) error {
-			if org := viper.GetString("verify_org"); org != "" {
-				if keys := viper.GetStringSlice("verify_keys"); len(keys) > 0 {
+			if org := viper.GetString("org"); org != "" {
+				if keys := viper.GetStringSlice("key"); len(keys) > 0 {
 					return fmt.Errorf("cannot use both --org and other key(s)")
 				}
 			}
@@ -56,9 +56,9 @@ func NewCmdVerify() *cobra.Command {
 	cmd.Flags().String("org", "", "accept only verification matching the passed organisation's ID, if set no other key(s) can be used")
 	cmd.Flags().String("hash", "", "specify a hash to verify, if set no arg(s) can be used")
 
-	// Bind to VCN_VERIFY_KEYS and VCN_VERIFY_ORG env vars
-	viper.BindPFlag("verify_keys", cmd.Flags().Lookup("key"))
-	viper.BindPFlag("verify_org", cmd.Flags().Lookup("org"))
+	// Bind to VCN_KEY and VCN_ORG env vars
+	viper.BindPFlag("key", cmd.Flags().Lookup("key"))
+	viper.BindPFlag("org", cmd.Flags().Lookup("org"))
 
 	return cmd
 }
@@ -76,7 +76,7 @@ func runVerify(cmd *cobra.Command, args []string) error {
 
 	cmd.SilenceUsage = true
 
-	org := viper.GetString("verify_org")
+	org := viper.GetString("org")
 	var keys []string
 	if org != "" {
 		bo, err := api.BlockChainGetOrganisation(org)
@@ -85,7 +85,7 @@ func runVerify(cmd *cobra.Command, args []string) error {
 		}
 		keys = bo.MembersKeys()
 	} else {
-		keys = viper.GetStringSlice("verify_keys")
+		keys = viper.GetStringSlice("key")
 	}
 
 	user := api.NewUser(store.Config().CurrentContext)
