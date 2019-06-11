@@ -66,6 +66,19 @@ func AssetsRelayContractAddress() string {
 	}
 }
 
+func OrganisationsRelayContractAddress() string {
+	switch StageEnvironment() {
+	case StageProduction:
+		return "0x258e39ff07e6e3a2430aa951f387cfbd808835bc"
+	case StageStaging:
+		return "0x4a9a0547949ec55ecbf06738e8c2bad747f410bb"
+	case StageTest:
+		return os.Getenv("VCN_TEST_CONTRACT_ORG")
+	default:
+		return "0x258e39ff07e6e3a2430aa951f387cfbd808835bc"
+	}
+}
+
 func TrackingEvent() string {
 	return FoundationEndpoint() + "/v1/tracking-event"
 }
