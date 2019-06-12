@@ -29,11 +29,11 @@ type errorResponse struct {
 	Error   error  `json:"error"`
 }
 
-// NewCmdLogin returns the cobra command for `vcn login`
+// NewCmdServe returns the cobra command for `vcn serve`
 func NewCmdServe() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "serve",
-		Short: "Start Web Server",
+		Short: "Start a web server",
 		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SilenceUsage = true
@@ -50,7 +50,7 @@ func Execute() error {
 	//CHECK PASSphrase
 	passphrase := os.Getenv(meta.KeyStorePasswordEnv)
 	if passphrase == "" {
-		return fmt.Errorf("Server need KEYSTORE_PASSWORD env")
+		return fmt.Errorf("Server needs KEYSTORE_PASSWORD env")
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -67,15 +67,15 @@ func Execute() error {
 func currentUser() (*api.User, error) {
 	email := store.Config().CurrentContext
 	if email == "" {
-		return nil, fmt.Errorf("No user has been set for current context")
+		return nil, fmt.Errorf("no user has been set for current context")
 	}
 	u := api.NewUser(email)
 	hasAuth, err := u.IsAuthenticated()
 	if err != nil {
-		return u, fmt.Errorf("Current user is not authenticated")
+		return u, fmt.Errorf("current user is not authenticated")
 	}
 	if !hasAuth {
-		return u, fmt.Errorf("Current user is not authenticated")
+		return u, fmt.Errorf("current user is not authenticated")
 	}
 	return u, nil
 }
@@ -92,7 +92,6 @@ func writeErrorResponse(w http.ResponseWriter, message string, err error, code u
 	if jerr == nil {
 		fmt.Fprintln(w, string(b))
 	}
-
 }
 
 func writeResponse(w http.ResponseWriter, r *types.Result) {
@@ -110,7 +109,7 @@ func sign(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&jsonRequest)
 
 	if err != nil {
-		writeErrorResponse(w, "Invalid Request Body", err, http.StatusBadRequest)
+		writeErrorResponse(w, "invalid Request Body", err, http.StatusBadRequest)
 		return
 	}
 
@@ -167,7 +166,6 @@ func sign(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeResponse(w, types.NewResult(&a, nil, verification))
-
 }
 
 func verify(w http.ResponseWriter, r *http.Request) {
@@ -188,11 +186,11 @@ func verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeResponse(w, types.NewResult(nil, artifact, verification))
-
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Index")
+	// can be used for healthcheck
+	fmt.Fprintln(w, "OK")
 }
 
 func parseVisibility(value string) meta.Visibility {
