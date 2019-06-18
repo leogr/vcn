@@ -156,15 +156,21 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user
 	_ = api.TrackVerify(user, a.Hash, a.Name)
 
 	if !verification.Trusted() {
+		errLabels := map[meta.Status]string{
+			meta.StatusUnknown:     "was not signed",
+			meta.StatusUntrusted:   "is untrusted",
+			meta.StatusUnsupported: "is unsupported",
+		}
+
 		switch true {
 		case org != "":
-			return fmt.Errorf(`%s is not verified by "%s"`, a.Hash, org)
+			return fmt.Errorf(`%s %s by "%s"`, a.Hash, errLabels[verification.Status], org)
 		case len(keys) == 1:
-			return fmt.Errorf("%s is not verified by %s", a.Hash, keys[0])
+			return fmt.Errorf("%s %s by %s", a.Hash, errLabels[verification.Status], keys[0])
 		case len(keys) > 1:
-			return fmt.Errorf("%s is not verified by any of %s", a.Hash, strings.Join(keys, ", "))
+			return fmt.Errorf("%s %s by any of %s", a.Hash, errLabels[verification.Status], strings.Join(keys, ", "))
 		default:
-			return fmt.Errorf("%s is not verified", a.Hash)
+			return fmt.Errorf("%s %s", a.Hash, errLabels[verification.Status])
 		}
 	}
 
