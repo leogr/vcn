@@ -48,7 +48,6 @@ func NewCmdServe() *cobra.Command {
 }
 
 func runServe(cmd *cobra.Command) error {
-	//CHECK PASSphrase
 	passphrase := os.Getenv(meta.KeyStorePasswordEnv)
 	if passphrase == "" {
 		log.Printf(`%s not set: /sign, /untrust, and /unsupport won't work.`, meta.KeyStorePasswordEnv)
@@ -97,7 +96,6 @@ func currentUser() (*api.User, error) {
 }
 
 func writeErrorResponse(w http.ResponseWriter, message string, err error, code uint64) {
-	w.Header().Set("Content-Type", "application/json")
 	var errResponse errorResponse
 	errResponse.Message = message
 	errResponse.Code = code
@@ -147,29 +145,17 @@ func sign(state meta.Status, pubKey string, w http.ResponseWriter, r *http.Reque
 	err := decoder.Decode(&jsonRequest)
 
 	if err != nil {
-		writeErrorResponse(w, "invalid Request Body", err, http.StatusBadRequest)
+		writeErrorResponse(w, "invalid request body", err, http.StatusBadRequest)
 		return
 	}
 
 	// check hash in request
 	if jsonRequest.Hash == "" {
-		writeErrorResponse(w, "invalid hash", nil, http.StatusBadRequest)
-		return
-	}
-	if jsonRequest.Size <= 0 {
-		writeErrorResponse(w, "invalid size", nil, http.StatusBadRequest)
+		writeErrorResponse(w, "hash cannot be empty", nil, http.StatusBadRequest)
 		return
 	}
 	if jsonRequest.Name == "" {
-		writeErrorResponse(w, "invalid name", nil, http.StatusBadRequest)
-		return
-	}
-	if jsonRequest.ContentType == "" {
-		writeErrorResponse(w, "invalid contentType", nil, http.StatusBadRequest)
-		return
-	}
-	if jsonRequest.Kind == "" {
-		writeErrorResponse(w, "invalid kind", nil, http.StatusBadRequest)
+		writeErrorResponse(w, "name cannot be empty", nil, http.StatusBadRequest)
 		return
 	}
 
