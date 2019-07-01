@@ -41,7 +41,7 @@ func NewCmdServe() *cobra.Command {
 		},
 		Args: cobra.NoArgs,
 	}
-	cmd.Flags().String("host", "localhost", "host address to serve the application")
+	cmd.Flags().String("host", "", "host address to serve the application")
 	cmd.Flags().String("port", "8080", "port to serve the application")
 	cmd.Flags().StringP("key", "k", "", "specify which user's key to use for signing, if not set the last available is used")
 	return cmd
@@ -76,10 +76,8 @@ func runServe(cmd *cobra.Command) error {
 	router.HandleFunc("/unsupport", signHander(meta.StatusUnsupported, key)).Methods("POST")
 	router.HandleFunc("/verify/{hash}", verify).Methods("GET")
 
-	fmt.Println("Starting server http://" + host)
-	log.Fatal(http.ListenAndServe(host, router))
-
-	return nil
+	fmt.Println("Starting server " + host)
+	return http.ListenAndServe(host, router)
 }
 
 func currentUser() (*api.User, error) {
