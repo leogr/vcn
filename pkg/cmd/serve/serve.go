@@ -76,7 +76,7 @@ func runServe(cmd *cobra.Command) error {
 	router.HandleFunc("/unsupport", signHander(meta.StatusUnsupported, key)).Methods("POST")
 	router.HandleFunc("/verify/{hash}", verify).Methods("GET")
 
-	fmt.Println("Starting server " + host)
+	log.Println("Starting server " + host)
 	return http.ListenAndServe(host, router)
 }
 
@@ -110,7 +110,9 @@ func writeErrorResponse(w http.ResponseWriter, message string, err error, code u
 		fmt.Fprintln(w, string(b))
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	headers := w.Header()
+	headers.Set("Access-Control-Allow-Origin", "*")
+	headers.Set("Content-Type", "application/json")
 	w.Write(b)
 }
 
@@ -125,7 +127,9 @@ func writeResponse(w http.ResponseWriter, r *types.Result) {
 		return
 
 	}
-	w.Header().Set("Content-Type", "application/json")
+	headers := w.Header()
+	headers.Set("Access-Control-Allow-Origin", "*")
+	headers.Set("Content-Type", "application/json")
 	w.Write(b)
 }
 
