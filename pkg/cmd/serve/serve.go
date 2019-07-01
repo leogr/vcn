@@ -25,8 +25,8 @@ import (
 
 type errorResponse struct {
 	Message string `json:"message"`
-	Code    uint64 `json:"code"`
-	Error   error  `json:"error"`
+	Code    int    `json:"code"`
+	Error   string `json:"error"`
 }
 
 // NewCmdServe returns the cobra command for `vcn serve`
@@ -95,19 +95,18 @@ func currentUser() (*api.User, error) {
 	return u, nil
 }
 
-func writeErrorResponse(w http.ResponseWriter, message string, err error, code uint64) {
-	var errResponse errorResponse
-	errResponse.Message = message
-	errResponse.Code = code
-	if err != nil {
-		errResponse.Error = err
+func writeErrorResponse(w http.ResponseWriter, message string, err error, code int) {
+	eR := errorResponse{
+		Message: message,
+		Code:    code,
 	}
-	b, jerr := json.Marshal(errResponse)
-	w.WriteHeader(http.StatusBadRequest)
-	if jerr == nil {
-		fmt.Fprintln(w, string(b))
+	if err != nil {
+		eR.Error = err.Error()
 	}
 
+	b, _ := json.Marshal(eR)
+
+	w.WriteHeader(code)
 	headers := w.Header()
 	headers.Set("Access-Control-Allow-Origin", "*")
 	headers.Set("Content-Type", "application/json")
@@ -116,15 +115,11 @@ func writeErrorResponse(w http.ResponseWriter, message string, err error, code u
 
 func writeResponse(w http.ResponseWriter, r *types.Result) {
 	b, err := json.Marshal(r)
-	if err != nil {
-		writeErrorResponse(w, "", err, 400)
+	if err != nil || b == nil {
+		writeErrorResponse(w, "internal json marshal error", err, http.StatusInternalServerError)
 		return
 	}
-	if b == nil {
-		writeErrorResponse(w, "", err, 400)
-		return
 
-	}
 	headers := w.Header()
 	headers.Set("Access-Control-Allow-Origin", "*")
 	headers.Set("Content-Type", "application/json")
