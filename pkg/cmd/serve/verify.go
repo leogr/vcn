@@ -52,9 +52,11 @@ func verify(w http.ResponseWriter, r *http.Request) {
 		verification, err = api.BlockChainVerifyMatchingPublicKeys(hash, keys)
 	} else {
 		// if we have an user, check for verification matching user's keys first
-		if hasAuth, _ := user.IsAuthenticated(); hasAuth {
-			if userKeys := user.Keys(); len(userKeys) > 0 {
-				verification, err = api.BlockChainVerifyMatchingPublicKeys(hash, userKeys)
+		if user != nil {
+			if hasAuth, _ := user.IsAuthenticated(); hasAuth {
+				if userKeys := user.Keys(); len(userKeys) > 0 {
+					verification, err = api.BlockChainVerifyMatchingPublicKeys(hash, userKeys)
+				}
 			}
 		}
 		// if no user nor verification matching the user has found,
