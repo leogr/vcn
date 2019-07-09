@@ -9,7 +9,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/vchain-us/vcn/pkg/cmd/inspect"
@@ -24,7 +23,6 @@ import (
 	"github.com/vchain-us/vcn/pkg/cmd/verify"
 	"github.com/vchain-us/vcn/pkg/meta"
 
-	"github.com/inconshreveable/mousetrap"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -97,9 +95,9 @@ func init() {
 }
 
 func preExitHook(cmd *cobra.Command) {
-	if quit, _ := cmd.PersistentFlags().GetBool("quit"); !quit || mousetrap.StartedByExplorer() {
-		fmt.Println()
-		fmt.Println("Press 'Enter' to continue...")
-		fmt.Scanln()
-	}
+	// if quit, _ := cmd.PersistentFlags().GetBool("quit"); !quit || mousetrap.StartedByExplorer() {
+	// 	fmt.Println()
+	// 	fmt.Println("Press 'Enter' to continue...")
+	// 	fmt.Scanln()
+	// }
 }
