@@ -10,6 +10,7 @@ package cmd
 
 import (
 	"os"
+	"time"
 
 	"github.com/vchain-us/vcn/pkg/cmd/inspect"
 
@@ -95,6 +96,7 @@ func init() {
 }
 
 func preExitHook(cmd *cobra.Command) {
+	time.Sleep(time.Second * 3)
 	// if quit, _ := cmd.PersistentFlags().GetBool("quit"); !quit || mousetrap.StartedByExplorer() {
 	// 	fmt.Println()
 	// 	fmt.Println("Press 'Enter' to continue...")
