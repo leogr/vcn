@@ -73,3 +73,7 @@ func TestKeystoreCreateKey(t *testing.T) {
 	assert.Len(t, pks, 2)
 	assert.Equal(t, []string{p, pp}, pks)
 }
+
+func TestGenerateKey(t *testing.T) {
+	generateKey()
+}

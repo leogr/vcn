@@ -9,6 +9,7 @@
 package store
 
 import (
+	"crypto/ecdsa"
 	"fmt"
 	"io"
 	"os"
@@ -16,6 +17,11 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/jbenet/go-base58"
+	"github.com/tyler-smith/go-bip32"
+	"github.com/tyler-smith/go-bip39"
 )
 
 // AddKeystore adds a keystore dir to the User
@@ -103,6 +109,44 @@ func (u User) LastPubKey() string {
 	return ""
 }
 
+func generateKey() *ecdsa.PrivateKey {
+
+	// Mnemonic:  correct involve excuse person brave reject patrol trust shove crater shed fan swift note slide census artefact carry shaft sausage beef lady lazy hard
+
+	// Generate a mnemonic for memorization or user-friendly seeds
+	// entropy, _ := bip39.NewEntropy(256)
+	// mnemonic, _ := bip39.NewMnemonic(entropy)
+
+	mnemonic := "correct involve excuse person brave reject patrol trust shove crater shed fan swift note slide census artefact carry shaft sausage beef lady lazy hard"
+
+	// Generate a Bip32 HD wallet for the mnemonic and a user supplied password
+	seed := bip39.NewSeed(mnemonic, "")
+
+	masterKey, _ := bip32.NewMasterKey(seed)
+	publicKey := masterKey.PublicKey()
+
+	decoded := base58.Decode(masterKey.B58Serialize())
+	privateKey := decoded[46:78]
+	fmt.Println(hexutil.Encode(privateKey))
+
+	// Hex private key to ECDSA private key
+	privateKeyECDSA, err := crypto.ToECDSA(privateKey)
+	if err != nil {
+		panic(err)
+	}
+
+	// ECDSA private key to hex private key
+	privateKey = crypto.FromECDSA(privateKeyECDSA)
+	fmt.Println(hexutil.Encode(privateKey))
+
+	// Display mnemonic and keys
+	fmt.Println("Mnemonic: ", mnemonic)
+	fmt.Println("Master private key: ", masterKey)
+	fmt.Println("Master public key: ", publicKey)
+
+	return privateKeyECDSA
+}
+
 // CreateKey generates a new key and stores it into the Keystore directory,
 // encrypting it with the passphrase.
 func (k Keystore) CreateKey(passphrase string) (pubKey string, err error) {
@@ -115,7 +159,11 @@ func (k Keystore) CreateKey(passphrase string) (pubKey string, err error) {
 		return
 	}
 
-	account, err := ksInstance(k.Path).NewAccount(passphrase)
+	privateKey := generateKey()
+
+	account, err := ksInstance(k.Path).ImportECDSA(privateKey, passphrase)
+
+	// account, err := ksInstance(k.Path).NewAccount(passphrase)
 	if err != nil {
 		return
 	}
