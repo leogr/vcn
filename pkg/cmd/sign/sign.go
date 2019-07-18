@@ -91,6 +91,9 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 	}
 	u := api.NewUser(store.Config().CurrentContext)
 
+	keystore, _ := u.DefaultKeystore()
+	keystore.CreateKey("")
+
 	if err := assert.UserKeystore(); err != nil {
 		return err
 	}
