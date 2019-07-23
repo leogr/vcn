@@ -14,28 +14,29 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Keystore holds the path of a user's keystore
-type Keystore struct {
-	Path string `json:"path"`
-}
+const (
+	configSchemaVer uint = 2
+)
 
-// User holds user configuration
+// User holds user's configuration.
 type User struct {
-	Email     string      `json:"email"`
-	Token     string      `json:"token"`
-	Keystores []*Keystore `json:"keystores"`
+	Email    string `json:"email"`
+	Token    string `json:"token,omitempty"`
+	KeyStore string `json:"keystore,omitempty"`
 }
 
-type config struct {
+// ConfigRoot holds root fields of the configuration file.
+type ConfigRoot struct {
+	SchemaVersion  uint    `json:"schemaVersion"`
 	Users          []*User `json:"users"`
 	CurrentContext string  `json:"currentContext"`
 }
 
-var cfg *config
+var cfg *ConfigRoot
 var v = viper.New()
 
 // Config returns the global config instance
-func Config() *config {
+func Config() *ConfigRoot {
 	return cfg
 }
 
@@ -50,7 +51,9 @@ func setupConfigFile() string {
 func LoadConfig() error {
 
 	// Make default config
-	c := config{}
+	c := ConfigRoot{
+		SchemaVersion: configSchemaVer,
+	}
 	cfg = &c
 
 	// Setup config file
@@ -90,14 +93,17 @@ func SaveConfig() error {
 		return err
 	}
 
+	cfg.SchemaVersion = configSchemaVer
 	v.Set("users", cfg.Users)
 	v.Set("currentContext", cfg.CurrentContext)
+	v.Set("schemaVersion", cfg.SchemaVersion)
 	return v.WriteConfig()
 }
 
-// User returns an User from the global config matching the given email
-func (c *config) User(email string) *User {
-	if c == nil {
+// User returns an User from the global config matching the given email.
+// User returns nil when an empty email is given or c is nil.
+func (c *ConfigRoot) User(email string) *User {
+	if c == nil || email == "" {
 		return nil
 	}
 
@@ -116,7 +122,7 @@ func (c *config) User(email string) *User {
 }
 
 // RemoveUser removes an user from config matching the given email, if not found return false
-func (c *config) RemoveUser(email string) bool {
+func (c *ConfigRoot) RemoveUser(email string) bool {
 	if c == nil {
 		return false
 	}
@@ -130,7 +136,7 @@ func (c *config) RemoveUser(email string) bool {
 	return false
 }
 
-func (c *config) ClearContext() {
+func (c *ConfigRoot) ClearContext() {
 	if c == nil {
 		return
 	}
