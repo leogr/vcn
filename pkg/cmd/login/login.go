@@ -13,9 +13,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
-	"github.com/vchain-us/vcn/internal/migrate"
 	"github.com/vchain-us/vcn/pkg/api"
+	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
 	"github.com/vchain-us/vcn/pkg/meta"
 	"github.com/vchain-us/vcn/pkg/store"
 )
@@ -83,8 +82,6 @@ func Execute() error {
 	if err := store.SaveConfig(); err != nil {
 		return err
 	}
-
-	migrate.From03x(user)
 
 	if !user.HasKey() {
 
