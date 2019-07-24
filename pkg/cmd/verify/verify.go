@@ -149,13 +149,13 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user
 	} else {
 		// if we have an user, check for verification matching user's keys first
 		if hasAuth, _ := user.IsAuthenticated(); hasAuth {
-			if userKeys := user.Keys(); len(userKeys) > 0 {
+			if userKey := user.Config().PublicAddress(); userKey != "" {
 				if output == "" {
-					fmt.Printf("Searching for signature matching local user keys (%s)...\n", user.Email())
+					fmt.Printf("Searching for signature matching current user (%s)...\n", user.Email())
 				}
-				verification, err = api.BlockChainVerifyMatchingPublicKeys(a.Hash, userKeys)
+				verification, err = api.BlockChainVerifyMatchingPublicKey(a.Hash, userKey)
 				if output == "" && verification.Unknown() {
-					fmt.Printf("No signature matching local user keys found\n")
+					fmt.Printf("No signature matching current user found\n")
 				}
 			}
 		}
