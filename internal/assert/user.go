@@ -47,8 +47,8 @@ func UserLogin() error {
 
 func UserKeystore() error {
 	u := api.NewUser(store.Config().CurrentContext)
-	if !u.HasKey() {
-		return fmt.Errorf("You need a keystore to sign.\n%s", loginMsg)
+	if u.Config().PublicAddress() == "" {
+		return fmt.Errorf("You need to import a secret prior to notarize an asset.\n%s", loginMsg)
 	}
 	return nil
 }

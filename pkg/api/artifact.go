@@ -153,34 +153,6 @@ func (u User) createArtifact(verification *BlockchainVerification, walletAddress
 	return nil
 }
 
-func (u *User) LoadAllArtifacts() ([]ArtifactResponse, error) {
-	ret := []ArtifactResponse{}
-	for _, pubKey := range u.cfg.PubKeys() {
-		chunk, err := u.LoadArtifacts(pubKey)
-		if err != nil {
-			return nil, err
-		}
-		ret = append(ret, chunk...)
-	}
-	return ret, nil
-}
-
-func (u *User) LoadArtifacts(walletAddress string) ([]ArtifactResponse, error) {
-	response := new(PagedArtifactResponse)
-	restError := new(Error)
-	r, err := newSling(u.token()).
-		Get(meta.ArtifactEndpointForWallet(walletAddress)).
-		Receive(&response, restError)
-	if err != nil {
-		return nil, err
-	}
-	if r.StatusCode != 200 {
-		return nil, fmt.Errorf("request failed: %s (%d)",
-			restError.Message, restError.Status)
-	}
-	return response.Content, nil
-}
-
 // LoadArtifact returns an *ArtifactResponse for the given hash and current u, if any
 func (u *User) LoadArtifact(hash string) (*ArtifactResponse, error) {
 	notFound := func() (*ArtifactResponse, error) {
