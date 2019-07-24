@@ -9,6 +9,7 @@
 package cli
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
@@ -19,10 +20,25 @@ import (
 	"github.com/vchain-us/vcn/pkg/meta"
 )
 
+func PromptMnemonic() (mnemonic string, err error) {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Mnemonic code:")
+	if mnemonic, err = reader.ReadString('\n'); err == nil {
+		mnemonic = strings.TrimSpace(mnemonic)
+	} else {
+		mnemonic = ""
+	}
+	return
+}
+
 func PromptPassphrase() (passphrase string, err error) {
 
 	color.Set(meta.StyleAffordance())
-	fmt.Print("Attention: Please pick a strong passphrase. There is no recovery possible.")
+	fmt.Print(`
+Attention: Please pick a strong passphrase and keep it safe.
+The passphrase is needed to encrypt your secret that will be stored locally.
+You will have to provide this passphrase everytime you want to notirize an asset.
+`)
 	color.Unset()
 	fmt.Println()
 
@@ -78,11 +94,11 @@ func ProvidePlatformUsername() (user string, err error) {
 		return user, nil
 	}
 	fmt.Print("Email address: ")
-	cnt, err := fmt.Scanln(&user)
+	n, err := fmt.Scanln(&user)
 	if err != nil {
 		return "", err
 	}
-	if cnt <= 0 {
+	if n <= 0 {
 		return "", fmt.Errorf("username must not be empty")
 	}
 	user = strings.TrimSpace(user)
