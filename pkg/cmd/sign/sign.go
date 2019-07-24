@@ -14,7 +14,6 @@ import (
 
 	"github.com/caarlos0/spin"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/vchain-us/vcn/internal/assert"
 	"github.com/vchain-us/vcn/pkg/api"
 	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
@@ -31,10 +30,6 @@ func NewCmdSign() *cobra.Command {
 		Aliases: []string{"s"},
 		Short:   "Sign asset's hash onto the blockchain",
 		Long:    ``,
-		PreRun: func(cmd *cobra.Command, args []string) {
-			// Bind to VCN_KEY env vars (after flags were parsed)
-			viper.BindPFlag("key", cmd.Flags().Lookup("key"))
-		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runSignWithState(cmd, args, meta.StatusTrusted)
 		},
@@ -42,7 +37,6 @@ func NewCmdSign() *cobra.Command {
 	}
 
 	cmd.Flags().VarP(make(mapOpts), "attr", "a", "add user defined attributes (format: --attr key=value)")
-	cmd.Flags().StringP("key", "k", "", "specify which user's key to use for signing, if not set the last available is used")
 	cmd.Flags().StringP("name", "n", "", "set the asset's name")
 	cmd.Flags().BoolP("public", "p", false, "when signed as public, the asset name and the signer's identity will be visible to everyone")
 	cmd.Flags().String("hash", "", "specify the hash instead of using the asset, if set no arg(s) can be used")
@@ -68,8 +62,6 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 	if err != nil {
 		return err
 	}
-
-	pubKey := viper.GetString("key")
 
 	output, err := cmd.Flags().GetString("output")
 	if err != nil {
@@ -123,17 +115,13 @@ func runSignWithState(cmd *cobra.Command, args []string, state meta.Status) erro
 	// Copy user provided custom attributes
 	a.Metadata.SetValues(metadata)
 
-	return sign(u, a, pubKey, state, meta.VisibilityForFlag(public), output)
+	return sign(u, a, state, meta.VisibilityForFlag(public), output)
 }
 
-func sign(u *api.User, a *api.Artifact, pubKey string, state meta.Status, visibility meta.Visibility, output string) error {
+func sign(u *api.User, a *api.Artifact, state meta.Status, visibility meta.Visibility, output string) error {
 
-	if pubKey == "" {
-		pubKey = u.DefaultKey()
-	}
 	if output == "" {
 		fmt.Println("Signer:\t" + u.Email())
-		fmt.Println("Key:\t" + pubKey)
 	}
 	passphrase, err := cli.ProvidePassphrase()
 	if err != nil {
@@ -146,7 +134,7 @@ func sign(u *api.User, a *api.Artifact, pubKey string, state meta.Status, visibi
 	}
 
 	hook := newHook(a)
-	verification, err := u.Sign(*a, pubKey, passphrase, state, visibility)
+	verification, err := u.Sign(*a, passphrase, state, visibility)
 
 	if output == "" {
 		s.Stop()
