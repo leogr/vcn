@@ -15,8 +15,8 @@ import (
 
 	"github.com/vchain-us/vcn/pkg/api"
 	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
+	"github.com/vchain-us/vcn/pkg/cmd/recover/secret"
 	"github.com/vchain-us/vcn/pkg/meta"
-	"github.com/vchain-us/vcn/pkg/mnemonic"
 	"github.com/vchain-us/vcn/pkg/store"
 )
 
@@ -77,44 +77,17 @@ func Execute() error {
 	}
 	cfg.CurrentContext = user.Email()
 
-	_ = api.TrackPublisher(user, meta.VcnLoginEvent)
-
-	userCfg := user.Config()
-	if pubAddr := userCfg.PublicAddress(); pubAddr == "" {
-
-		fmt.Print(`
-You have no secret set up yet.
-Please, provide your mnemonic code in order to recover your secret.
-`)
-
-		code, err := cli.PromptMnemonic()
-		if err != nil {
-			return err
-		}
-
-		privKey, err := mnemonic.ToECDSA(code)
-		if err != nil {
-			return err
-		}
-
-		passphrase, err := cli.PromptPassphrase()
-		if err != nil {
-			return err
-		}
-
-		if err := userCfg.ImportSecret(*privKey, passphrase); err != nil {
-			return err
-		}
-
-		fmt.Printf("Secret successfully imported.")
-		fmt.Println("Keystore path:\t", userCfg.KeyStore)
-		fmt.Println("Public address:\t", userCfg.PublicAddress())
+	if pubAddr := user.Config().PublicAddress(); pubAddr == "" {
+		fmt.Println("\nYou have no secret set up yet.")
+		secret.Execute()
 		fmt.Println()
 	}
 
 	if err := store.SaveConfig(); err != nil {
 		return err
 	}
+
+	_ = api.TrackPublisher(user, meta.VcnLoginEvent)
 
 	return nil
 }
