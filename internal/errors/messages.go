@@ -7,6 +7,15 @@
  */
 package errors
 
+const AccountNotSynced = `account not yet synced 
+
+We are finalizing your account configuration. We will complete the 
+configuration shortly and we will update you as soon as this is done.
+We are sorry for the inconvenience and would like to thank you for 
+your patience.
+It only takes few seconds. Please try again in 1 minute.
+`
+
 const AuthRequired = `authentication required, please login`
 
 const UnconfirmedEmail = `your email address was not confirmed

@@ -14,6 +14,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 )
@@ -38,6 +39,18 @@ func (u *User) keystore() (ks *keystore.KeyStore, err error) {
 	u.KeyStore = path
 
 	return keystore.NewKeyStore(path, keystore.StandardScryptN, keystore.StandardScryptP), nil
+}
+
+func (u *User) PublicAddress() string {
+	ks, err := u.keystore()
+	if err != nil {
+		return ""
+	}
+	accs := ks.Accounts()
+	if len(accs) == 0 {
+		return ""
+	}
+	return strings.ToLower(accs[0].Address.Hex())
 }
 
 // OpenSecret opens the user's Web3 Secret Storage JSON file for reading.

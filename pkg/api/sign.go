@@ -25,16 +25,7 @@ import (
 	"github.com/vchain-us/vcn/pkg/meta"
 )
 
-const walletNotSyncMsg = `
-%s cannot be signed with CodeNotary. 
-We are finalizing your account configuration. We will complete the 
-configuration shortly and we will update you as soon as this is done.
-We are sorry for the inconvenience and would like to thank you for 
-your patience.
-It only takes few seconds. Please try again in 1 minute.
-`
-
-func (u User) Sign(artifact Artifact, pubKey string, passphrase string, state meta.Status, visibility meta.Visibility) (*BlockchainVerification, error) {
+func (u User) Sign(artifact Artifact, passphrase string, state meta.Status, visibility meta.Visibility) (*BlockchainVerification, error) {
 
 	hasAuth, err := u.IsAuthenticated()
 	if err != nil {
@@ -51,7 +42,11 @@ func (u User) Sign(artifact Artifact, pubKey string, passphrase string, state me
 		return nil, makeError("invalid size", nil)
 	}
 
-	keyin, err := u.cfg.OpenKey(pubKey)
+	if err := u.checkSyncState(); err != nil {
+		return nil, err
+	}
+
+	keyin, err := u.cfg.OpenSecret()
 	if err != nil {
 		return nil, err
 	}
@@ -63,14 +58,6 @@ func (u User) Sign(artifact Artifact, pubKey string, passphrase string, state me
 
 	if opsLeft < 1 {
 		return nil, fmt.Errorf(errors.NoRemainingSignOps)
-	}
-
-	synced, err := u.isWalletSynced(pubKey)
-	if err != nil {
-		return nil, err
-	}
-	if !synced {
-		return nil, makeError(fmt.Sprintf(walletNotSyncMsg, artifact.Name), nil)
 	}
 
 	return u.commitHash(keyin, passphrase, artifact, state, visibility)
@@ -176,29 +163,4 @@ func waitForTx(tx common.Hash, maxRounds uint64, pollInterval time.Duration) (ti
 		time.Sleep(pollInterval)
 	}
 	return true, nil
-}
-
-type CountResponse struct {
-	Count uint64 `json:"count"`
-}
-
-func (u User) RemainingSignOps() (uint64, error) {
-	response := new(CountResponse)
-	restError := new(Error)
-	r, err := newSling(u.token()).
-		Get(meta.RemainingSignOpsEndpoint()).
-		Receive(&response, restError)
-	logger().WithFields(logrus.Fields{
-		"response":  response,
-		"err":       err,
-		"restError": restError,
-	}).Trace("RemainingSignOps")
-	if err != nil {
-		return 0, err
-	}
-	switch r.StatusCode {
-	case 200:
-		return response.Count, nil
-	}
-	return 0, fmt.Errorf("count remaining sign operations failed: %+v", restError)
 }
