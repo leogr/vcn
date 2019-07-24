@@ -16,6 +16,7 @@ import (
 	"github.com/vchain-us/vcn/pkg/api"
 	"github.com/vchain-us/vcn/pkg/cmd/internal/cli"
 	"github.com/vchain-us/vcn/pkg/meta"
+	"github.com/vchain-us/vcn/pkg/mnemonic"
 	"github.com/vchain-us/vcn/pkg/store"
 )
 
@@ -74,48 +75,44 @@ func Execute() error {
 	if err := user.Authenticate(password); err != nil {
 		return err
 	}
+	cfg.CurrentContext = user.Email()
 
 	_ = api.TrackPublisher(user, meta.VcnLoginEvent)
 
-	user.DefaultKeystore() // ensure default keystore
-	cfg.CurrentContext = user.Email()
+	userCfg := user.Config()
+	if pubAddr := userCfg.PublicAddress(); pubAddr == "" {
+
+		fmt.Print(`
+You have no secret set up yet.
+Please, provide your mnemonic code in order to recover your secret.
+`)
+
+		code, err := cli.PromptMnemonic()
+		if err != nil {
+			return err
+		}
+
+		privKey, err := mnemonic.ToECDSA(code)
+		if err != nil {
+			return err
+		}
+
+		passphrase, err := cli.PromptPassphrase()
+		if err != nil {
+			return err
+		}
+
+		if err := userCfg.ImportSecret(*privKey, passphrase); err != nil {
+			return err
+		}
+
+		fmt.Printf("Secret successfully imported.")
+		fmt.Println("Keystore path:\t", userCfg.KeyStore)
+		fmt.Println("Public address:\t", userCfg.PublicAddress())
+		fmt.Println()
+	}
+
 	if err := store.SaveConfig(); err != nil {
-		return err
-	}
-
-	if !user.HasKey() {
-
-		fmt.Println("You have no keys set up yet.")
-		fmt.Println("<vcn> will now do this for you and upload the public key to the platform.")
-
-		keyPassphrase, err := cli.PromptPassphrase()
-		if err != nil {
-			return err
-		}
-
-		keystore, err := user.DefaultKeystore()
-		if err != nil {
-			return err
-		}
-		if err := store.SaveConfig(); err != nil {
-			return err
-		}
-
-		pubKey, err := keystore.CreateKey(keyPassphrase)
-		if err != nil {
-			return err
-		}
-
-		fmt.Println("Keystore successfully created. We are updating your user profile.\n" +
-			"You will be able to sign your first asset in one minute")
-		fmt.Println("Keystore:\t", keystore.Path)
-		fmt.Println("Public key:\t", pubKey)
-
-		_ = api.TrackPublisher(user, meta.KeyCreatedEvent)
-	}
-
-	err = user.SyncKeys()
-	if err != nil {
 		return err
 	}
 
