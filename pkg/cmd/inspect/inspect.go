@@ -115,11 +115,6 @@ func inspect(hash string, u *api.User, output string) error {
 					"level not in sync (blockchain: %d, platform: %d)", v.Level, ar.Level,
 				))
 			}
-			if v.Key() != ar.Signer {
-				results[i].AddError(fmt.Errorf(
-					"signer key not in sync (blockchain: %s, platform: %s)", v.Key(), ar.Signer,
-				))
-			}
 		}
 	}
 
