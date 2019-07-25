@@ -21,6 +21,7 @@ import (
 	"github.com/vchain-us/vcn/pkg/meta"
 )
 
+// BlockchainOrganisation represents the Organization data stored onto the blockchain.
 type BlockchainOrganisation struct {
 	Owner     common.Address   `json:"owner"`
 	Members   []common.Address `json:"members"`
@@ -48,6 +49,8 @@ func (o *BlockchainOrganisation) MembersKeys() []string {
 	return []string{}
 }
 
+// BlockChainGetOrganisation returns a BlockchainOrganisation for the organization name, if any.
+// It returns a nil value and an error if the organization is not found.
 func BlockChainGetOrganisation(name string) (*BlockchainOrganisation, error) {
 	logger().WithFields(logrus.Fields{
 		"name": name,
