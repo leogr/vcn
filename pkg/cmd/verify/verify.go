@@ -184,7 +184,7 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user
 
 	var ar *api.ArtifactResponse
 	if !verification.Unknown() {
-		ar, _ = api.LoadArtifactForHash(user, a.Hash, verification.MetaHash())
+		ar, _ = api.LoadArtifact(user, a.Hash, verification.MetaHash())
 	}
 
 	if err = cli.Print(output, types.NewResult(a, ar, verification)); err != nil {
