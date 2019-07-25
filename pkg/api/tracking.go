@@ -19,14 +19,14 @@ type verifyArtifactTrackingEventRequest struct {
 	Client   string `json:"client"`
 	Filename string `json:"filename"`
 	Hash     string `json:"hash"`
-	Url      string `json:"url"`
+	URL      string `json:"url"`
 }
 
 type signArtifactTrackingEventRequest struct {
 	Filename string `json:"filename"`
 	Hash     string `json:"hash"`
 	Name     string `json:"name"`
-	Url      string `json:"url"`
+	URL      string `json:"url"`
 }
 
 type publisherTrackingEventRequest struct {

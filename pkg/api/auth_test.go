@@ -13,7 +13,7 @@ import (
 	"testing"
 )
 
-const VERIFIED_USER = "mathias@vchain.us"
+const verifiedUser = "leonardo@vchain.us"
 
 func TestCheckTokenNoInput(t *testing.T) {
 	token := ""
@@ -26,10 +26,10 @@ func TestCheckTokenNoInput(t *testing.T) {
 }
 
 func TestPublisherExists(t *testing.T) {
-	ret, err := checkUserExists(VERIFIED_USER)
+	ret, err := checkUserExists(verifiedUser)
 
 	if ret == false || err != nil {
-		t.Error(fmt.Sprintf(`checkUserExists() must return true for infamous <%s>`, VERIFIED_USER))
+		t.Error(fmt.Sprintf(`checkUserExists() must return true for infamous <%s>`, verifiedUser))
 	}
 
 }

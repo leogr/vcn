@@ -25,6 +25,9 @@ import (
 	"github.com/vchain-us/vcn/pkg/meta"
 )
 
+// Sign is invoked by the User to notarize an artifact with a given state and visibility,
+// if successful a BlockchainVerification is returned.
+// The passphrase is required to unlock the local stored secret.
 func (u User) Sign(artifact Artifact, passphrase string, state meta.Status, visibility meta.Visibility) (*BlockchainVerification, error) {
 
 	hasAuth, err := u.IsAuthenticated()

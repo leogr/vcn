@@ -23,6 +23,7 @@ import (
 	"github.com/vchain-us/vcn/pkg/meta"
 )
 
+// BlockchainVerification represents the notarized data onto the blockchain.
 type BlockchainVerification struct {
 	Owner     common.Address `json:"owner"`
 	Level     meta.Level     `json:"level"`
@@ -52,10 +53,12 @@ func (v *BlockchainVerification) toMap() map[string]interface{} {
 	}
 }
 
+// MarshalJSON implements the json.Marshaler interface.
 func (v *BlockchainVerification) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.toMap())
 }
 
+// UnmarshalJSON implements the json.Unmarshaler interface.
 func (v *BlockchainVerification) UnmarshalJSON(b []byte) error {
 	if v == nil {
 		v = &BlockchainVerification{}
@@ -81,10 +84,13 @@ func (v *BlockchainVerification) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// MarshalYAML implements the yaml.Marshaler interface.
 func (v *BlockchainVerification) MarshalYAML() (interface{}, error) {
 	return v.toMap(), nil
 }
 
+// MetaHash returns the SHA256 digest of BlockchainVerification's data.
+// The returned value uniquely identify a single notarization.
 func (v *BlockchainVerification) MetaHash() string {
 	if v == nil {
 		return ""
