@@ -15,6 +15,7 @@ import (
 	"github.com/vchain-us/vcn/pkg/meta"
 )
 
+// Artifact represents the set of all relevant information gathered from a digital asset.
 type Artifact struct {
 	Kind        string
 	Name        string
@@ -24,6 +25,7 @@ type Artifact struct {
 	Metadata
 }
 
+// Copy returns a deep copy of the artifact.
 func (a Artifact) Copy() Artifact {
 	c := a
 	if a.Metadata != nil {
@@ -33,8 +35,8 @@ func (a Artifact) Copy() Artifact {
 	return c
 }
 
-func (a Artifact) toRequest() *ArtifactRequest {
-	aR := &ArtifactRequest{
+func (a Artifact) toRequest() *artifactRequest {
+	aR := &artifactRequest{
 		// root fields
 		Kind:        a.Kind,
 		Name:        a.Name,
@@ -52,7 +54,7 @@ func (a Artifact) toRequest() *ArtifactRequest {
 	return aR
 }
 
-type ArtifactRequest struct {
+type artifactRequest struct {
 	// root fields
 	Kind        string `json:"kind"`
 	Name        string `json:"name"`
@@ -64,12 +66,13 @@ type ArtifactRequest struct {
 	// custom metadata
 	Metadata Metadata `json:"metadata"`
 
-	// ArtifactRequest specific
+	// artifactRequest specific
 	Visibility string `json:"visibility"`
 	Status     string `json:"status"`
 	MetaHash   string `json:"metaHash"`
 }
 
+// PagedArtifactResponse holds a page of ArtifactResponse(s) returned by the platform.
 type PagedArtifactResponse struct {
 	Content       []ArtifactResponse `json:"content"`
 	TotalElements uint64             `json:"totalElements"`
@@ -79,6 +82,7 @@ type PagedArtifactResponse struct {
 	} `json:"pageable"`
 }
 
+// ArtifactResponse holds artifact values returned by the platform.
 type ArtifactResponse struct {
 	// root fields
 	Kind        string `json:"kind" vcn:"Kind"`
@@ -153,7 +157,7 @@ func (u User) createArtifact(verification *BlockchainVerification, walletAddress
 	return nil
 }
 
-// LoadArtifact returns an *ArtifactResponse for the given hash and current u, if any
+// LoadArtifact fetches and returns an *ArtifactResponse for the given hash and current u, if any.
 func (u *User) LoadArtifact(hash string) (*ArtifactResponse, error) {
 	notFound := func() (*ArtifactResponse, error) {
 		return nil, fmt.Errorf("no asset matching hash %s signed by %s found", hash, u.Email())
@@ -187,6 +191,7 @@ func (u *User) LoadArtifact(hash string) (*ArtifactResponse, error) {
 	return ar, nil
 }
 
+// ListArtifacts fetches and returns a paged list of user's artifacts.
 func (u User) ListArtifacts(page uint) (*PagedArtifactResponse, error) {
 	response := new(PagedArtifactResponse)
 	restError := new(Error)
@@ -213,7 +218,10 @@ func (u User) ListArtifacts(page uint) (*PagedArtifactResponse, error) {
 	)
 }
 
-func LoadArtifactForHash(user *User, hash string, metahash string) (*ArtifactResponse, error) {
+// LoadArtifact fetches and returns an artifact matching the given hash and optionally a given metahash.
+// Returned values depends on user permissions on the artifact, if user is nil then only
+// publicly disclosable values are returned.
+func LoadArtifact(user *User, hash string, metahash string) (*ArtifactResponse, error) {
 	response := new(ArtifactResponse)
 	restError := new(Error)
 	r, err := newSling(user.token()).
@@ -223,7 +231,7 @@ func LoadArtifactForHash(user *User, hash string, metahash string) (*ArtifactRes
 		"response":  response,
 		"err":       err,
 		"restError": restError,
-	}).Trace("LoadArtifactForHash")
+	}).Trace("LoadArtifact")
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +239,7 @@ func LoadArtifactForHash(user *User, hash string, metahash string) (*ArtifactRes
 	case 200:
 		return response, nil
 	case 404:
-		return nil, fmt.Errorf("no asset matching hash %s/%s found", hash, metahash)
+		return nil, fmt.Errorf("no artifact matching %s/%s found", hash, metahash)
 	}
-	return nil, fmt.Errorf("loading artifact for hash failed: %+v", restError)
+	return nil, fmt.Errorf("loading artifact failed: %+v", restError)
 }

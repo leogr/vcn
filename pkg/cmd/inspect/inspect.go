@@ -98,7 +98,7 @@ func inspect(hash string, u *api.User, output string) error {
 
 	results := make([]types.Result, l)
 	for i, v := range verifications {
-		ar, err := api.LoadArtifactForHash(u, hash, v.MetaHash())
+		ar, err := api.LoadArtifact(u, hash, v.MetaHash())
 		results[i] = *types.NewResult(nil, ar, &v)
 		if err != nil {
 			results[i].AddError(err)
