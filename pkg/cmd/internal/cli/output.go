@@ -68,6 +68,8 @@ func WriteResultTo(r *types.Result, out io.Writer) (n int64, err error) {
 						value = strings.TrimPrefix(value, "\n")
 					}
 				case "Signer":
+					// todo(leogr): this will not happen anymore with the new platform APIs.
+					// Still retained to accommodate future improvements.
 					if f.Interface() != r.Verification.Key() {
 						value = fmt.Sprintf("%s", f.Interface())
 					}
