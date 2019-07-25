@@ -55,9 +55,6 @@ const (
 	VcnLoginEvent  string = "VCN_LOGIN"
 	VcnSignEvent   string = "VCN_SIGN"
 	VcnVerifyEvent string = "VCN_VERIFY"
-	// todo(leogr): backend needs to be update prior to fix event strings
-	KeyCreatedEvent  string = "KEYSTORE_CREATED"
-	KeyUploadedEvent string = "KEYSTORE_UPLOADED"
 )
 
 // vcn environment variable names
