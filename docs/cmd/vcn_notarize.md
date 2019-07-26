@@ -1,13 +1,13 @@
-## vcn unsupport
+## vcn notarize
 
-Unsupport an asset
+Notarize an asset onto the blockchain
 
 ### Synopsis
 
-Unsupport an asset
+Notarize an asset onto the blockchain
 
 ```
-vcn unsupport [flags]
+vcn notarize [flags]
 ```
 
 ### Options
@@ -15,7 +15,7 @@ vcn unsupport [flags]
 ```
   -a, --attr list     add user defined attributes (format: --attr key=value)
       --hash string   specify the hash instead of using an asset, if set no arg(s) can be used
-  -h, --help          help for unsupport
+  -h, --help          help for notarize
   -n, --name string   set the asset name
   -p, --public        when notarized as public, the asset name and metadata will be visible to everyone
 ```

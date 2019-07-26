@@ -2,37 +2,37 @@
 
 `vcn` support local docker installations out of the box using `docker://` as a location. You just need to point to the correct container image name or the container image id.
 
-### Sign a local docker image
+### Notarize a local docker image
 
 `vcn` uses docker default schemes, so the latest tag is automatically used, if no tag is given
 
 ```
-vcn sign docker://hello-world
+vcn notarize docker://hello-world
 ```
 
 or using a tag
 
 ```
-vcn sign docker://hello-world:v1
+vcn notarize docker://hello-world:v1
 ```
 
-To be able to sign, you need to register at [CodeNotary](https://dashboard.codenotary.io) and get an account.
+To be able to notarize, you need to register at [CodeNotary](https://dashboard.codenotary.io) and get an account.
 
-### Verify a local docker image
+### Authenticate a local docker image
 
 ```
-vcn verify docker://hello-world
+vcn authenticate docker://hello-world
 ```
 
 or using a tag
 
 ```
-vcn verify docker://hello-world:v1
+vcn authenticate docker://hello-world:v1
 ```
 
 # Docker Sidecar Integration
 
-`vcn` also offers a sidecar project, you can use to automatically verify used container images during runtime.
+`vcn` also offers a sidecar project, you can use to automatically authenticate used container images during runtime.
 
 Check out (https://github.com/vchain-us/vcn-watchdog) on your server. The tool continuously verifies the integrity of your containers:
 
