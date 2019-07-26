@@ -37,6 +37,7 @@ static:
 
 .PHONY: docs/cmd
 docs/cmd:
+	rm -rf docs/cmd/*.md
 	$(GO) run docs/cmd/main.go
 
 .PHONY: build/xgo

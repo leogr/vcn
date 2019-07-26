@@ -160,7 +160,7 @@ func (u User) createArtifact(verification *BlockchainVerification, walletAddress
 // LoadArtifact fetches and returns an *ArtifactResponse for the given hash and current u, if any.
 func (u *User) LoadArtifact(hash string) (*ArtifactResponse, error) {
 	notFound := func() (*ArtifactResponse, error) {
-		return nil, fmt.Errorf("no asset matching hash %s signed by %s found", hash, u.Email())
+		return nil, fmt.Errorf("no asset matching hash %s found for %s", hash, u.Email())
 	}
 	response := new(PagedArtifactResponse)
 	restError := new(Error)

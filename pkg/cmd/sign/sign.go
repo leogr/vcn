@@ -26,9 +26,9 @@ import (
 // NewCmdSign returns the cobra command for `vcn sign`
 func NewCmdSign() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "sign",
-		Aliases: []string{"s"},
-		Short:   "Sign asset's hash onto the blockchain",
+		Use:     "notarize",
+		Aliases: []string{"n", "sign", "s"},
+		Short:   "Notarize an asset onto the blockchain",
 		Long:    ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runSignWithState(cmd, args, meta.StatusTrusted)
@@ -37,9 +37,9 @@ func NewCmdSign() *cobra.Command {
 	}
 
 	cmd.Flags().VarP(make(mapOpts), "attr", "a", "add user defined attributes (format: --attr key=value)")
-	cmd.Flags().StringP("name", "n", "", "set the asset's name")
-	cmd.Flags().BoolP("public", "p", false, "when signed as public, the asset name and the signer's identity will be visible to everyone")
-	cmd.Flags().String("hash", "", "specify the hash instead of using the asset, if set no arg(s) can be used")
+	cmd.Flags().StringP("name", "n", "", "set the asset name")
+	cmd.Flags().BoolP("public", "p", false, "when notarized as public, the asset name and metadata will be visible to everyone")
+	cmd.Flags().String("hash", "", "specify the hash instead of using an asset, if set no arg(s) can be used")
 	cmd.SetUsageTemplate(
 		strings.Replace(cmd.UsageTemplate(), "{{.UseLine}}", "{{.UseLine}} ARG", 1),
 	)
@@ -127,7 +127,7 @@ func sign(u *api.User, a *api.Artifact, state meta.Status, visibility meta.Visib
 	if err != nil {
 		return err
 	}
-	s := spin.New("%s Signing asset...")
+	s := spin.New("%s Notarization in progress...")
 	if output == "" {
 		s.Set(spin.Spin1)
 		s.Start()

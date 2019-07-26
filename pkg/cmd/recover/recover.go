@@ -16,10 +16,11 @@ import (
 // NewCmdRecover returns the cobra command for `vcn recover`
 func NewCmdRecover() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "recover",
-		Short: "Recover an user secret",
-		Long:  ``,
-		Args:  cobra.NoArgs,
+		Use:     "recover",
+		Short:   "Recover an user secret",
+		Example: "  vcn recover secret",
+		Long:    ``,
+		Args:    cobra.NoArgs,
 	}
 
 	cmd.AddCommand(secret.NewCmdSecret())

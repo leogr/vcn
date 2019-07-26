@@ -36,7 +36,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:     "vcn",
 	Version: meta.Version(),
-	Short:   "vChain CodeNotary - code signing in 1 simple step",
+	Short:   "vChain CodeNotary - Notarize and authenticate, from code to production",
 	Long:    ``,
 }
 

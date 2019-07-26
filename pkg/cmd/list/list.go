@@ -24,7 +24,7 @@ func NewCmdList() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"l"},
-		Short:   "List your signed assets",
+		Short:   "List your notarized assets",
 		Long:    ``,
 		RunE:    runList,
 		Args:    cobra.NoArgs,

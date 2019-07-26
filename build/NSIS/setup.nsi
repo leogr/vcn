@@ -71,13 +71,13 @@ Section "CodeNotary vcn cli tool" installation
   CreateShortCut "$INSTDIR\vcn.lnk" "$INSTDIR\vcn.exe" "" "$INSTDIR\vcn.exe" 0
 
 ;create context menu  
-  WriteRegStr HKCR "*\shell" "" "CodeNotary verify"
-  WriteRegStr HKCR "*\shell\CodeNotary verify" "Icon" "$INSTDIR\vcn.ico,0" 
-  WriteRegStr HKCR "*\shell\CodeNotary verify\command" ""  '"$INSTDIR\vcn.exe" verify "%1"' 
+  WriteRegStr HKCR "*\shell" "" "CodeNotary authenticate"
+  WriteRegStr HKCR "*\shell\CodeNotary authenticate" "Icon" "$INSTDIR\vcn.ico,0" 
+  WriteRegStr HKCR "*\shell\CodeNotary authenticate\command" ""  '"$INSTDIR\vcn.exe" authenticate "%1"' 
   
-  WriteRegStr HKCR "*\shell" "" "CodeNotary sign"
-  WriteRegStr HKCR "*\shell\CodeNotary sign" "Icon" "$INSTDIR\vcn.ico,0" 
-  WriteRegStr HKCR "*\shell\CodeNotary sign\command" "" '"$INSTDIR\vcn.exe" sign "%1"' 
+  WriteRegStr HKCR "*\shell" "" "CodeNotary notarize"
+  WriteRegStr HKCR "*\shell\CodeNotary notarize" "Icon" "$INSTDIR\vcn.ico,0" 
+  WriteRegStr HKCR "*\shell\CodeNotary notarize\command" "" '"$INSTDIR\vcn.exe" notarize "%1"' 
 
   
 ;write uninstall information to the registry
@@ -110,8 +110,8 @@ Section "Uninstall"
   Delete "$DESKTOP\vcn.lnk"
 
 ;Delete Uninstaller And Unistall Registry Entries
-  DeleteRegKey HKCR "*\shell\CodeNotary verify"
-  DeleteRegKey HKCR "*\shell\CodeNotary sign"
+  DeleteRegKey HKCR "*\shell\CodeNotary authenticate"
+  DeleteRegKey HKCR "*\shell\CodeNotary notarize"
   DeleteRegKey /ifempty HKCU "SOFTWARE\CodeNotary"
   DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\CodeNotary"  
  

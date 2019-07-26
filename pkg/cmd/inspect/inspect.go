@@ -90,7 +90,7 @@ func inspect(hash string, u *api.User, output string) error {
 
 	if output == "" {
 		fmt.Printf(
-			`%d signatures found for "%s"
+			`%d notarizations found for "%s"
 
 `,
 			l, hash)

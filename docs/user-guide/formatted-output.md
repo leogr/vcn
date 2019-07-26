@@ -6,7 +6,7 @@
 ## Examples
 
 ```
-vcn verify docker://nginx --output yaml
+vcn authenticate docker://nginx --output yaml
 ```
 
 ```
@@ -14,7 +14,7 @@ vcn list --output json
 ```
 
 ```
-vcn sign file.txt
+vcn notarize file.txt
 ```
 > You need to set `KEYSTORE_PASSWORD` [environment variable](environments.md#other-environment-variables) to make `vcn` work in non-interactive mode
 
@@ -24,7 +24,7 @@ When an error is encountered, `vcn` will print the usual error message to the *S
 
 ### Example of mixed *Standard error* and *Standard output*
 ```
-$ vcn verify non-existing.txt --output json
+$ vcn authenticate non-existing.txt --output json
 Error: open non-existing.txt: no such file or directory
 {
   "error": "open non-existing.txt: no such file or directory"
@@ -33,7 +33,7 @@ Error: open non-existing.txt: no such file or directory
 
 ### Example of redirecting the *Standard output* to get the formatted result
 ```
-$ vcn verify non-existing.txt --output json > output.json
+$ vcn authenticate non-existing.txt --output json > output.json
 Error: open non-existing.txt: no such file or directory
 
 $ cat output.json

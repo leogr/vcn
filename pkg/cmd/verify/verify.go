@@ -30,10 +30,10 @@ var (
 // NewCmdVerify returns the cobra command for `vcn verify`
 func NewCmdVerify() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "verify",
-		Example: "  vcn verify /bin/vcn",
-		Aliases: []string{"v"},
-		Short:   "Verify assets against blockchain",
+		Use:     "authenticate",
+		Example: "  vcn authenticate /bin/vcn",
+		Aliases: []string{"a", "verify", "v"},
+		Short:   "Authenticate assets against the blockchain",
 		Long:    ``,
 		RunE:    runVerify,
 		PreRun: func(cmd *cobra.Command, args []string) {
@@ -62,9 +62,9 @@ func NewCmdVerify() *cobra.Command {
 		strings.Replace(cmd.UsageTemplate(), "{{.UseLine}}", "{{.UseLine}} ...ARG(s)", 1),
 	)
 
-	cmd.Flags().StringSliceP("key", "k", nil, "accept only signatures matching the passed key(s)")
-	cmd.Flags().StringP("org", "I", "", "accept only signatures matching the passed organisation's ID, if set no other key(s) can be used")
-	cmd.Flags().String("hash", "", "specify a hash to verify, if set no arg(s) can be used")
+	cmd.Flags().StringSliceP("key", "k", nil, "accept only authentications matching the passed key(s)")
+	cmd.Flags().StringP("org", "I", "", "accept only authentications matching the passed organisation's ID, if set no other key(s) can be used")
+	cmd.Flags().String("hash", "", "specify a hash to authenticate, if set no arg(s) can be used")
 	cmd.Flags().Bool("raw-diff", false, "print raw a diff, if any")
 	cmd.Flags().MarkHidden("raw-diff")
 
@@ -140,9 +140,9 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user
 	if len(keys) > 0 {
 		if output == "" {
 			if org == "" {
-				fmt.Printf("Searching for signature matching passed keys...\n")
+				fmt.Printf("Looking for blockchain entry matching the passed keys...\n")
 			} else {
-				fmt.Printf("Searching for signature matching organization's keys (%s)...\n", org)
+				fmt.Printf("Looking for blockchain entry matching the organization (%s)...\n", org)
 			}
 		}
 		verification, err = api.BlockChainVerifyMatchingPublicKeys(a.Hash, keys)
@@ -151,11 +151,11 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user
 		if hasAuth, _ := user.IsAuthenticated(); hasAuth {
 			if userKey := user.Config().PublicAddress(); userKey != "" {
 				if output == "" {
-					fmt.Printf("Searching for signature matching current user (%s)...\n", user.Email())
+					fmt.Printf("Looking for blockchain entry matching the current user (%s)...\n", user.Email())
 				}
 				verification, err = api.BlockChainVerifyMatchingPublicKey(a.Hash, userKey)
 				if output == "" && verification.Unknown() {
-					fmt.Printf("No signature matching current user found\n")
+					fmt.Printf("No blockchain entry matching the current user found\n")
 				}
 			}
 		}
@@ -163,7 +163,7 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user
 		// fallback to the last with highest level available verification
 		if verification.Unknown() {
 			if output == "" {
-				fmt.Printf("Searching for the last with highest level available signature...\n")
+				fmt.Printf("Looking for the last blockchain entry with highest level...\n")
 			}
 			verification, err = api.BlockChainVerify(a.Hash)
 		}
@@ -174,7 +174,7 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user
 	}
 
 	if err != nil {
-		return fmt.Errorf("unable to verify hash: %s", err)
+		return fmt.Errorf("unable to authenticate the hash: %s", err)
 	}
 
 	err = hook.finalize(verification, output)
@@ -201,7 +201,7 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user
 
 	if !verification.Trusted() {
 		errLabels := map[meta.Status]string{
-			meta.StatusUnknown:     "was not signed",
+			meta.StatusUnknown:     "was not notarized",
 			meta.StatusUntrusted:   "is untrusted",
 			meta.StatusUnsupported: "is unsupported",
 		}
