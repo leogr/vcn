@@ -57,19 +57,19 @@ Level | Label | Description
 
 ## FAQs
 
-Who/what is performing the act of notarization?
+### Who/what is performing the act of notarization?
 
   Notarization is performed by a combination of user action, CodeNotary OpenSource software, and a CodeNotary smart contract.
  
-Who is the witness?
+### Who is the witness?
 
   The CodeNotary smart contract and every member node of ZTC blockchain are the witnesses who attest to the authenticity of the records stored on the blockchain. 
  
-Who guarantees that nothing gets changed after the notarization has been processed?
+### Who guarantees that nothing gets changed after the notarization has been processed?
 
   The blockchain and the collective protection of the ZTC member nodes guarantee the records stored on the blockchain are forever immutable and authentic.
  
-Who is the ZTC?
+### Who is the ZTC?
  
-  The ZTC (Zero Trust Consortium) is the software industry’s first blockchain-based consortium that adheres to a community-led, group governance model. Its decentralized design prevents any one member from dominating control over the others, allowing verified truth to only come through group consensus. No member has the ability to unilaterally adjust, role back, or delete the history that has been recorded. The consortium makes its ledger available to the public for inspection year round, day or night. 
+  The [ZTC](https://zerotrustconsortium.org/) (Zero Trust Consortium) is the software industry’s first blockchain-based consortium that adheres to a community-led, group governance model. Its decentralized design prevents any one member from dominating control over the others, allowing verified truth to only come through group consensus. No member has the ability to unilaterally adjust, role back, or delete the history that has been recorded. The consortium makes its ledger available to the public for inspection year round, day or night. 
 
