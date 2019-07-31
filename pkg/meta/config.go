@@ -56,13 +56,13 @@ func FoundationEndpoint() string {
 func AssetsRelayContractAddress() string {
 	switch StageEnvironment() {
 	case StageProduction:
-		return "0x495021fe1a48a5b0c85ef1abd68c42cdfc7cda08"
+		return "0x3222c50e1917c3551c7b6ee10d8e1bb00b84062b"
 	case StageStaging:
-		return "0xf1d4b9fe8290bb5718db5d46c313e7b266570c21"
+		return "0x05ce69454a13c8ac0bd20fdc48b09068f5c0a5ed"
 	case StageTest:
 		return os.Getenv("VCN_TEST_CONTRACT")
 	default:
-		return "0x495021fe1a48a5b0c85ef1abd68c42cdfc7cda08"
+		return "0x3222c50e1917c3551c7b6ee10d8e1bb00b84062b"
 	}
 }
 
