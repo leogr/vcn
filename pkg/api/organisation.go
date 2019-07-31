@@ -57,7 +57,7 @@ func BlockChainGetOrganisation(name string) (*BlockchainOrganisation, error) {
 	}).Trace("BlockChainGetOrganisation")
 
 	// Connect and get organisation data
-	client, err := ethclient.Dial(meta.MainNetEndpoint())
+	client, err := ethclient.Dial(meta.MainNet())
 	if err != nil {
 		return nil, err
 	}

@@ -34,7 +34,7 @@ type publisherTrackingEventRequest struct {
 }
 
 func trackingEvent() string {
-	return meta.FoundationEndpoint() + "/v1/tracking-event"
+	return meta.APIEndpoint("tracking-event")
 }
 
 // TrackVerify is deprecated and will be removed

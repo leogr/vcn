@@ -80,13 +80,13 @@ func (u User) commitHash(
 
 	transactor.GasLimit = meta.GasLimit()
 	transactor.GasPrice = meta.GasPrice()
-	client, err := ethclient.Dial(meta.MainNetEndpoint())
+	client, err := ethclient.Dial(meta.MainNet())
 	if err != nil {
 		err = makeError(
 			errors.BlockchainCannotConnect,
 			logrus.Fields{
 				"error":   err,
-				"network": meta.MainNetEndpoint(),
+				"network": meta.MainNet(),
 			})
 		return
 	}
@@ -151,7 +151,7 @@ func (u User) commitHash(
 }
 
 func waitForTx(tx common.Hash, maxRounds uint64, pollInterval time.Duration) (timeout bool, err error) {
-	client, err := ethclient.Dial(meta.MainNetEndpoint())
+	client, err := ethclient.Dial(meta.MainNet())
 	if err != nil {
 		return false, err
 	}

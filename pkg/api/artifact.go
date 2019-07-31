@@ -145,7 +145,7 @@ func (u User) createArtifact(verification *BlockchainVerification, walletAddress
 
 	restError := new(Error)
 	r, err := newSling(u.token()).
-		Post(meta.ArtifactEndpointForWallet(walletAddress)).
+		Post(meta.APIEndpoint("artifact")+"?wallet-address="+walletAddress).
 		BodyJSON(aR).Receive(nil, restError)
 	if err != nil {
 		return err
@@ -165,7 +165,7 @@ func (u *User) LoadArtifact(hash string) (*ArtifactResponse, error) {
 	response := new(PagedArtifactResponse)
 	restError := new(Error)
 	r, err := newSling(u.token()).
-		Get(meta.ArtifactEndpoint()+"/"+hash+"?scope=CURRENT_USER&size=1&sort=createdAt,desc").
+		Get(meta.APIEndpoint("artifact")+"/"+hash+"?scope=CURRENT_USER&size=1&sort=createdAt,desc").
 		Receive(&response, restError)
 	if err != nil {
 		return nil, err
@@ -197,7 +197,7 @@ func (u User) ListArtifacts(page uint) (*PagedArtifactResponse, error) {
 	restError := new(Error)
 	url := fmt.Sprintf(
 		"%s/search?limit=CURRENT_USER&sort=createdAt,desc&size=25&page=%d&group=true",
-		meta.ArtifactEndpoint(),
+		meta.APIEndpoint("artifact"),
 		page,
 	)
 	r, err := newSling(u.token()).
@@ -225,7 +225,7 @@ func LoadArtifact(user *User, hash string, metahash string) (*ArtifactResponse, 
 	response := new(ArtifactResponse)
 	restError := new(Error)
 	r, err := newSling(user.token()).
-		Get(meta.ArtifactEndpoint()+"/"+hash+"/"+metahash).
+		Get(meta.APIEndpoint("artifact")+"/"+hash+"/"+metahash).
 		Receive(&response, restError)
 	logger().WithFields(logrus.Fields{
 		"response":  response,

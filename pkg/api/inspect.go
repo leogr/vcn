@@ -26,7 +26,7 @@ func BlockChainInspect(hash string) ([]BlockchainVerification, error) {
 	}).Trace("BlockChainInspect")
 
 	// Connect and get verification count
-	client, err := ethclient.Dial(meta.MainNetEndpoint())
+	client, err := ethclient.Dial(meta.MainNet())
 	if err != nil {
 		return nil, err
 	}

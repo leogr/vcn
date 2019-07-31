@@ -141,7 +141,7 @@ func BlockChainVerify(hash string) (*BlockchainVerification, error) {
 	logger().WithFields(logrus.Fields{
 		"hash": hash,
 	}).Trace("BlockChainVerify")
-	client, err := ethclient.Dial(meta.MainNetEndpoint())
+	client, err := ethclient.Dial(meta.MainNet())
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +187,7 @@ func BlockChainVerifyMatchingPublicKeys(hash string, pubKeys []string) (*Blockch
 	}).Trace("BlockChainVerifyMatchingPublicKeys")
 
 	// Connect and get verification count
-	client, err := ethclient.Dial(meta.MainNetEndpoint())
+	client, err := ethclient.Dial(meta.MainNet())
 	if err != nil {
 		return nil, err
 	}

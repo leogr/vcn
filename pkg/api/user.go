@@ -102,7 +102,7 @@ func (u User) RemainingSignOps() (uint64, error) {
 	})
 	restError := new(Error)
 	r, err := newSling(u.token()).
-		Get(meta.RemainingSignOpsEndpoint()).
+		Get(meta.APIEndpoint("artifact/remaining-sign-operations")).
 		Receive(&response, restError)
 	logger().WithFields(logrus.Fields{
 		"response":  response,
@@ -136,7 +136,7 @@ func (u User) checkSyncState() (err error) {
 		} `json:"content"`
 	})
 	r, err := newSling(u.token()).
-		Get(meta.WalletEndpoint()).
+		Get(meta.APIEndpoint("wallet")).
 		Receive(pagedWalletResponse, authError)
 	if err != nil {
 		return err

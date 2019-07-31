@@ -34,7 +34,7 @@ type publisherExistsParams struct {
 }
 
 func publisherEndpoint() string {
-	return meta.FoundationEndpoint() + "/v1/publisher"
+	return meta.APIEndpoint("publisher")
 }
 
 func checkUserExists(email string) (success bool, err error) {
