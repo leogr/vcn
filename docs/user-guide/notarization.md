@@ -1,36 +1,55 @@
 # Notarization
 
-Notarization is the process initiated by a user (*the signer*), usually by running one of the following commands on an asset:
+Notarization is a process of creating an immutable blockchain entry that contains asset metadata so it can be used in the future authentication of a digital asset. It is a three-part process that includes the vetting of a signer's identity, the signer testifying to the asset's [status](#Statuses), and the recording of that asset's metadata (signer identity, unique digital fingerprint, [status](#Statuses), etc.) into an official record stored on the blockchain. This way interested parties can authenticate with certainty if an asset is trusted, who testified to its trust and how they have proven who they are.
 
-- `vcn notarize` to notarize an asset so its [status](#Statuses) equals **TRUSTED**
-- `vcn untrust` to notarize an asset so its [status](#Statuses) equals **UNTRUSTED**
-- `vcn unsupport` to notarize an asset so its [status](#Statuses) equals **UNSUPPORTED**
+<strong>Part 1 of Notarization - Signer Identity Verification</strong>
 
-When the process starts, a fingerprint (the digest or simply *the hash*) is derived from the block of digital data (*the asset*) given as an input by using the [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hashing function.
+The first part of the notary process happens when a user verifies their identity through one or more of the following ways: email, social, government ID, or address verification. Identity verification changes a user’s trust [level](#Levels). The trust [level](#Levels) a user has when they notarize an asset is inserted into that asset’s metadata and appended to the blockchain. 
 
-The hash (not the asset itself, which is never uploaded to nor shared with CodeNotary) alongside with the desired [status](#Statuses) is then cryptographically signed by using the the user's secret and stored on the [ZTC](https://zerotrustconsortium.org/) blockchain. There it remains forever and can never be changed, so it can be used to check the asset authenticity (i.e. invoking `vcn authenticate`) at any point in the future.
+Note: If the user later changes their trust [level](#Levels), the assets they notarized prior to the change will still reflect their previous trust [level](#Levels), i.e. the trust [level](#Levels) the user had when they originally notarized that specific asset. For example, say a user notarizes an asset when they had a trust [level](#Levels) of 2, but they later upgraded their trust [level](#Levels) to 3. When that asset is authenticated, it would return metadata saying the notarizing user had a trust [level](#Levels) of 2, even after the user upgraded their trust [level](#Levels). This is why you want to verify your identity at the highest trust [level](#Levels) before you start notarizing assets.
 
-In the end, the output of notarization process is a new blockchain entry with the hash bound to the following attributes:
+**Part 2 of Notarization - Testifying to an Asset’s Trustworthiness**
+
+CodeNotary allows users to independently testify to an asset’s trust [status](#Statuses) and immutably store their attestation on the blockchain through the notarization process. The notary process is initiated by a user (the signer) and executed by running the command `vcn notarize` on an asset. Running the command sets the asset’s [status](#Statuses) equal to **TRUSTED**.
+
+(Subsequent changes in status are revocations of trust. See the section below on Revocation for more information.)
+
+**Part 3 of Notarization - Creating Asset Metadata and Recording it on the Blockchain**
+
+When the signer initiates the notarization process, their block of digital data (*the asset*) is input into a [SHA-256](https://en.wikipedia.org/wiki/SHA-2) hashing function in order to produce their asset’s unique digital fingerprint. (The digital fingerprint is also known as the digest or simply *the hash*.)
+
+Then, the hash (not the asset itself, which is never uploaded to nor shared with CodeNotary) along with the desired [status](#Statuses) is cryptographically signed by using the signer's Unique Secret (private key). Signing takes place locally on the signer’s machine. 
+After signing, this metadata (i.e. the hash, status, and Unique Secret) is sent to a Smart Contract on the blockchain. The Smart Contract then adds the signer’s trust [level](#Levels) and a timestamp to the already existing metadata. 
+
+In the end, the output of the notarization process is a new entry on the [ZTC](https://zerotrustconsortium.org/) blockchain, where it remains forever and can never be changed. The entry contains the asset’s hash, [status](#Statuses), [level](#Levels), timestamp, and the signer's Unique Secret, which are all bound together.  Attribute mapping and descriptions are below:
 
 Field | Label | Description 
 ------------ | ------------- | ------------- 
-`Owner` | **Key** | The public address derived from the user's secret, also known as the signer's key.
-`Level` | **Level** | The signer's [level](#Levels) at the time when the notarization was made.
+`Owner` | **Key** | The public address derived from the user's Unique Secret, which is also known as the signer's private key.
+`Level` | **Level** | The signer's [level](#Levels) at the time when the notarization was made. It indicates how the signer verified their identity.
 `Status` | **Status** | The asset's [status](#Statuses) chosen by the signer at the time when the notarization was made.
 `Timestamp` | **Date** | The date and time of the notarization.
 > *Field*s are names used to map [the data stored onto the blockchain](https://github.com/vchain-us/vcn/blob/0.5.0/pkg/api/verify.go#L26), *Label*s are used by `vcn` when printing results.
 
+## Revocation
+
+Revocation is the process of removing an asset’s trust by changing its [status](#Statuses). 
+Each change in [status](#Statuses) is an additional blockchain entry and includes the same fields of metadata as notarization does. Trust revocation can made by running the commands:
+
+- `vcn untrust` to notarize an asset so its [status](#Statuses) equals **UNTRUSTED**
+- `vcn unsupport` to notarize an asset so its [status](#Statuses) equals **UNSUPPORTED**
+
 ## Authentication
 
-Authentication is the process of confirming an asset's [status](#Statuses) that is recorded on the blockchain. This is usually done by running `vcn authenticate` against the asset.
+Authentication is the process of confirming an asset's [status](#Statuses) that is recorded on the blockchain. This is usually done by running `vcn authenticate` against an asset.
 
-Given an asset as an input, the hash is computed in the same way it is in the notarization process. Then, if any blockchain entry matches the newly calculated hash , the matching result [status](#Statuses) is returned (the authentication). Otherwise the returned result  [status](#Statuses) equals **UNKNOWN**.
+Given an asset as an input, the hash is computed in the same way it is in the notarization process. If any blockchain entry has a hash that matches the local asset’s newly calculated hash, then the matching result [status](#Statuses) is returned (the authentication) along with the metadata that’s bound to the matching hash. Otherwise, the returned result status equals **UNKNOWN**.
 
-> By default, `vcn` tries to retrieve the last entry matching the current user (if logged in), if not found the last entry with highest [level](#Levels) is returned instead. Alternatively, it is also possible to retrive the authentication matching a specific signer (an user or an organization). 
+Authentication is always free and can be performed by anyone, anywhere, at any time, regardless of organizational affiliation or customer freemium status.
 
 # Authentication of Co-notarized Assets
 
-`vcn` allows multiple users to notarize the same asset. The act is known as co-notarization. By default, when running vcn authenticate,a user’s last blockchain entry for the asset will be returned to them when logged in, regardless if the asset was co-notarized. However, all other users will be returned the last blockchain entry made by the user with the highest trust level. 
+CodeNotary's `vcn` application allows multiple users to notarize the same asset. The act is known as co-notarization. By default, when running the command `vcn authenticate`, a user’s last blockchain entry for the asset will be returned to them when they are logged in, regardless if the asset was co-notarized. However, all other users will be returned the last blockchain entry made by the user with the highest trust level. 
 
 Alternatively, it is also possible to retrieve the authentication matching a specific signer (a user or an organization) using the flag --key.
 
