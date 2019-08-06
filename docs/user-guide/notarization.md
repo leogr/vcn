@@ -2,7 +2,7 @@
 
 Notarization is a process of creating an immutable blockchain entry that contains asset metadata so it can be used in the future authentication of a digital asset. It is a three-part process that includes the vetting of a signer's identity, the signer testifying to the asset's [status](#Statuses), and the recording of that asset's metadata (signer identity, unique digital fingerprint, [status](#Statuses), etc.) into an official record stored on the blockchain. This way interested parties can authenticate with certainty if an asset is trusted, who testified to its trust and how they have proven who they are.
 
-<strong>Part 1 of Notarization - Signer Identity Verification</strong>
+**Part 1 of Notarization - Signer Identity Verification**
 
 The first part of the notary process happens when a user verifies their identity through one or more of the following ways: email, social, government ID, or address verification. Identity verification changes a user’s trust [level](#Levels). The trust [level](#Levels) a user has when they notarize an asset is inserted into that asset’s metadata and appended to the blockchain. 
 
@@ -74,21 +74,21 @@ Level | Label | Description
 4 | **LOCATION_VERIFIED** | The signer provided a proof-of-address.
 99 | **VCHAIN** | *Reserved*
 
-### FAQs
+## FAQs
 
-## Who/what is performing the act of notarization?
+### Who/what is performing the act of notarization?
 
   Notarization is performed by a combination of user action, CodeNotary OpenSource software, and a CodeNotary smart contract.
  
-## Who is the witness?
+### Who is the witness?
 
   The CodeNotary smart contract and every member node of ZTC blockchain are the witnesses who attest to the authenticity of the records stored on the blockchain. 
  
-## Who guarantees that nothing gets changed after the notarization has been processed?
+### Who guarantees that nothing gets changed after the notarization has been processed?
 
   The blockchain and the collective protection of the ZTC member nodes guarantee the records stored on the blockchain are forever immutable and authentic.
  
-## Who is the ZTC?
+### Who is the ZTC?
  
   The [ZTC](https://zerotrustconsortium.org/) (Zero Trust Consortium) is the software industry’s first blockchain-based consortium that adheres to a community-led, group governance model. Its decentralized design prevents any one member from dominating control over the others, allowing verified truth to only come through group consensus. No member has the ability to unilaterally adjust, role back, or delete the history that has been recorded. The consortium makes its ledger available to the public for inspection year round, day or night. 
 
