@@ -10,7 +10,9 @@ Note: If the user later changes their trust [level](#Levels), the assets they no
 
 **Part 2 of Notarization - Testifying to an Asset’s Trustworthiness**
 
-CodeNotary allows users to independently testify to an asset’s trust [status](#Statuses) and immutably store their attestation on the blockchain through the notarization process. The notary process is initiated by a user (the signer) and executed by running the command `vcn notarize` on an asset. Running the command sets the asset’s [status](#Statuses) equal to **TRUSTED**.
+CodeNotary allows users to independently testify to an asset’s trust [status](#Statuses) and immutably store their attestation on the blockchain through the notarization process. The notary process is initiated by a user (the signer) and executed by running the command: 
+
+- `vcn notarize` which sets the asset’s [status](#Statuses) equal to **TRUSTED**
 
 (Subsequent changes in status are revocations of trust. See the section below on Revocation for more information.)
 
@@ -36,8 +38,8 @@ Field | Label | Description
 Revocation is the process of removing an asset’s trust by changing its [status](#Statuses). 
 Each change in [status](#Statuses) is an additional blockchain entry and includes the same fields of metadata as notarization does. Trust revocation can made by running the commands:
 
-- `vcn untrust` to notarize an asset so its [status](#Statuses) equals **UNTRUSTED**
-- `vcn unsupport` to notarize an asset so its [status](#Statuses) equals **UNSUPPORTED**
+- `vcn untrust` to set an asset's [status](#Statuses) to equal **UNTRUSTED**
+- `vcn unsupport` to set an asset's [status](#Statuses) to equal **UNSUPPORTED**
 
 # Authentication
 
