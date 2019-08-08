@@ -27,7 +27,7 @@ In the end, the output of the notarization process is a new entry on the [ZTC](h
 
 Field | Label | Description 
 ------------ | ------------- | ------------- 
-`Owner` | **Key** | The public address derived from the user's Unique Secret, which is also known as the signer's private key.
+`Owner` | **SignerID** | The public address derived from the user's Unique Secret.
 `Level` | **Level** | The signer's [level](#Levels) at the time when the notarization was made. It indicates how the signer verified their identity.
 `Status` | **Status** | The asset's [status](#Statuses) chosen by the signer at the time when the notarization was made.
 `Timestamp` | **Date** | The date and time of the notarization.
