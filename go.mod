@@ -22,6 +22,7 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/google/go-cmp v0.3.0
 	github.com/google/go-querystring v1.0.0 // indirect
+	github.com/gorilla/mux v1.7.3
 	github.com/h2non/filetype v1.0.8
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/huin/goupnp v1.0.0 // indirect
