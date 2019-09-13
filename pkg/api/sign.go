@@ -11,7 +11,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"io"
 	"math/big"
 	"strings"
 	"time"
@@ -25,11 +24,11 @@ import (
 	"github.com/vchain-us/vcn/pkg/meta"
 )
 
-// Sign is invoked by the User to notarize an artifact with a given state and visibility,
+// SignWithOptions is invoked by the User to notarize an artifact using the given functional options,
 // if successful a BlockchainVerification is returned.
-// The passphrase is required to unlock the local stored secret.
-func (u User) Sign(artifact Artifact, passphrase string, state meta.Status, visibility meta.Visibility) (*BlockchainVerification, error) {
-
+// By default, the artifact is notarized using status = meta.StatusTrusted, visibility meta.VisibilityPrivate,
+// and using the local stored secret, thus at least the passphrase must be provided using SignWithPassphrase().
+func (u User) SignWithOptions(artifact Artifact, options ...SignOption) (*BlockchainVerification, error) {
 	if artifact.Hash == "" {
 		return nil, makeError("hash is missing", nil)
 	}
@@ -66,22 +65,35 @@ func (u User) Sign(artifact Artifact, passphrase string, state meta.Status, visi
 		return nil, err
 	}
 
-	keyin, err := u.cfg.OpenSecret()
-	if err != nil {
-		return nil, err
-	}
-
-	return u.commitHash(keyin, passphrase, artifact, state, visibility)
+	return u.commitTransaction(
+		artifact,
+		options...,
+	)
 }
 
-func (u User) commitHash(
-	keyin io.Reader,
-	passphrase string,
+// Sign is invoked by the User to notarize an artifact with a given state and visibility,
+// if successful a BlockchainVerification is returned.
+// The passphrase is required to unlock the local stored secret.
+func (u User) Sign(artifact Artifact, passphrase string, status meta.Status, visibility meta.Visibility) (*BlockchainVerification, error) {
+	return u.SignWithOptions(
+		artifact,
+		SignWithStatus(status),
+		SignWithVisibility(visibility),
+		SignWithPassphrase(passphrase),
+	)
+}
+
+func (u User) commitTransaction(
 	artifact Artifact,
-	status meta.Status,
-	visibility meta.Visibility,
+	opts ...SignOption,
 ) (verification *BlockchainVerification, err error) {
-	transactor, err := bind.NewTransactor(keyin, passphrase)
+
+	o, err := makeSignOpts(u, opts...)
+	if err != nil {
+		return
+	}
+
+	transactor, err := bind.NewTransactor(o.keyin, o.passphrase)
 	if err != nil {
 		return
 	}
@@ -110,7 +122,7 @@ func (u User) commitHash(
 		)
 		return
 	}
-	tx, err := instance.Sign(transactor, artifact.Hash, big.NewInt(int64(status)))
+	tx, err := instance.Sign(transactor, artifact.Hash, big.NewInt(int64(o.status)))
 	if err != nil {
 		err = makeFatal(
 			errors.SignFailed,
@@ -147,7 +159,7 @@ func (u User) commitHash(
 		return
 	}
 
-	err = u.createArtifact(verification, strings.ToLower(signerID), artifact, visibility, status)
+	err = u.createArtifact(verification, strings.ToLower(signerID), artifact, o.visibility, o.status)
 	return
 }
 
