@@ -148,13 +148,6 @@ func (u User) commitHash(
 	}
 
 	err = u.createArtifact(verification, strings.ToLower(signerID), artifact, visibility, status)
-	if err != nil {
-		return
-	}
-
-	// todo(ameingast): redundant tracking events?
-	_ = TrackPublisher(&u, meta.VcnSignEvent)
-	_ = TrackSign(&u, artifact.Hash, artifact.Name, status)
 	return
 }
 

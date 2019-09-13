@@ -164,6 +164,10 @@ func sign(u *api.User, a *api.Artifact, state meta.Status, visibility meta.Visib
 	hook := newHook(a)
 	verification, err := u.Sign(*a, passphrase, state, visibility)
 
+	// todo(ameingast): redundant tracking events?
+	api.TrackPublisher(u, meta.VcnSignEvent)
+	api.TrackSign(u, a.Hash, a.Name, state)
+
 	if output == "" {
 		s.Stop()
 	}

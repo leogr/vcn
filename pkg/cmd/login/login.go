@@ -94,7 +94,7 @@ func Execute() error {
 		return err
 	}
 
-	_ = api.TrackPublisher(user, meta.VcnLoginEvent)
+	api.TrackPublisher(user, meta.VcnLoginEvent)
 
 	return nil
 }

@@ -238,8 +238,8 @@ func verify(cmd *cobra.Command, a *api.Artifact, keys []string, org string, user
 	}
 
 	// todo(ameingast): redundant tracking events?
-	_ = api.TrackPublisher(user, meta.VcnVerifyEvent)
-	_ = api.TrackVerify(user, a.Hash, a.Name)
+	api.TrackPublisher(user, meta.VcnVerifyEvent)
+	api.TrackVerify(user, a.Hash, a.Name)
 
 	if !verification.Trusted() {
 		errLabels := map[meta.Status]string{
