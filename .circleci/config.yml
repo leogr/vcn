@@ -7,6 +7,7 @@ jobs:
       GO111MODULE: "on"
     steps:
       - checkout
+      - run: sudo apt-get install -y bzr
       - run: make TEST_FLAGS="-timeout 60s -coverprofile cover.out -race -v" test
 workflows:
   version: 2
