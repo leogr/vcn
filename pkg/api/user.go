@@ -97,8 +97,7 @@ func (u User) Config() *store.User {
 	return nil
 }
 
-// DownloadSecret downloads the User's secret from the platform and return io.Reader for reading it.
-func (u User) DownloadSecret() (io.Reader, error) {
+func (u User) getSecret() (address, keystore string, err error) {
 	authError := new(Error)
 	pagedWalletResponse := new(struct {
 		Content []struct {
@@ -110,20 +109,36 @@ func (u User) DownloadSecret() (io.Reader, error) {
 		Get(meta.APIEndpoint("wallet")).
 		Receive(pagedWalletResponse, authError)
 	if err != nil {
-		return nil, err
+		return
 	}
 	if r.StatusCode != 200 {
-		return nil, fmt.Errorf(
-			"request failed: %s (%d)", authError.Message,
-			authError.Status)
+		err = fmt.Errorf("request failed: %s (%d)", authError.Message, authError.Status)
+		return
 	}
 
 	wallets := pagedWalletResponse.Content
 	if len(wallets) == 0 || wallets[0].KeyStore == "" {
-		return nil, fmt.Errorf("no secret found for %s, please complete the onboarding process at %s", u.Email(), meta.DashboardURL())
+		err = fmt.Errorf("no secret found for %s, please complete the onboarding process at %s", u.Email(), meta.DashboardURL())
+	} else {
+		address = wallets[0].Address
+		keystore = wallets[0].KeyStore
 	}
+	return
+}
 
-	return bytes.NewReader([]byte(wallets[0].KeyStore)), nil
+// DownloadSecret downloads the User's secret from the platform and return io.Reader for reading it.
+func (u User) DownloadSecret() (io.Reader, error) {
+	_, keystore, err := u.getSecret()
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewReader([]byte(keystore)), nil
+}
+
+// SignerID retrives the User's SignerID (the public address derived from the secret) from the platform.
+func (u User) SignerID() (id string, err error) {
+	id, _, err = u.getSecret()
+	return
 }
 
 // RemainingSignOps returns the number of remaining notarizations in the User's account subscription.
