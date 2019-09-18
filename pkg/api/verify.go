@@ -186,7 +186,7 @@ func VerifyMatchingSignerIDWithFallback(hash string, signerID string) (*Blockcha
 	logger().WithFields(logrus.Fields{
 		"hash":     hash,
 		"signerID": signerID,
-	}).Trace("VerifyMatchingSignerIDs")
+	}).Trace("VerifyMatchingSignerIDWithFallback")
 
 	address := common.HexToAddress(signerID)
 
