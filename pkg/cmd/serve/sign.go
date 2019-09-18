@@ -10,8 +10,8 @@ package serve
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/vchain-us/vcn/pkg/api"
 	"github.com/vchain-us/vcn/pkg/cmd/internal/types"
@@ -25,36 +25,53 @@ func signHander(state meta.Status) func(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func sign(state meta.Status, w http.ResponseWriter, r *http.Request) {
+func sign(status meta.Status, w http.ResponseWriter, r *http.Request) {
+	user, passphrase, err := getCredential(r)
+	fmt.Println(passphrase)
+	if err != nil {
+		writeError(w, http.StatusUnauthorized, err)
+		return
+	}
+	if user == nil {
+		writeError(w, http.StatusUnauthorized, fmt.Errorf("bad or missing credentials"))
+		return
+	}
 
-	visibility := meta.VisibilityPrivate
+	keyin, err := user.DownloadSecret()
+	if err != nil {
+		writeError(w, http.StatusConflict, err)
+		return
+	}
+
+	opts := []api.SignOption{
+		api.SignWithKey(keyin, passphrase),
+		api.SignWithStatus(status),
+	}
+
 	if _, public := r.URL.Query()["public"]; public {
-		visibility = meta.VisibilityPublic
+		opts = append(opts, api.SignWithVisibility(meta.VisibilityPublic))
 	}
 
 	decoder := json.NewDecoder(r.Body)
 	var artifact api.Artifact
-	err := decoder.Decode(&artifact)
+	err = decoder.Decode(&artifact)
 
 	if err != nil {
-		writeErrorResponse(w, "invalid request body", err, http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, err)
 		return
 	}
 
 	if artifact.Name == "" {
-		writeErrorResponse(w, "name cannot be empty", nil, http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, fmt.Errorf("name cannot be empty"))
 		return
 	}
 
-	user, err := currentUser()
-	if user == nil || err != nil {
-		writeErrorResponse(w, "no such user", err, http.StatusBadRequest)
-		return
-	}
-
-	verification, err := user.Sign(artifact, os.Getenv(meta.VcnNotarizationPassword), state, visibility)
+	verification, err := user.SignWithOptions(
+		artifact,
+		opts...,
+	)
 	if err != nil {
-		writeErrorResponse(w, "sign error", err, http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -63,5 +80,5 @@ func sign(state meta.Status, w http.ResponseWriter, r *http.Request) {
 		ar, _ = api.LoadArtifact(user, artifact.Hash, verification.MetaHash())
 	}
 
-	writeResponse(w, types.NewResult(&artifact, ar, verification))
+	writeResult(w, http.StatusOK, types.NewResult(&artifact, ar, verification))
 }

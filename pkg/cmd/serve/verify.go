@@ -26,7 +26,7 @@ func verify(w http.ResponseWriter, r *http.Request) {
 	if org != "" {
 		bo, err := api.GetBlockChainOrganisation(org)
 		if err != nil {
-			writeErrorResponse(w, "organization error", err, http.StatusBadRequest)
+			writeError(w, http.StatusBadRequest, err)
 			return
 		}
 		keys = bo.MembersIDs()
@@ -46,9 +46,9 @@ func verify(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 	var verification *api.BlockchainVerification
-	user, err := currentUser()
+	user, _, err := getCredential(r)
 	if err != nil {
-		writeErrorResponse(w, "user error", err, http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -58,8 +58,12 @@ func verify(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// if we have an user, check for verification matching user's key first
 		userKey := ""
-		if hasAuth, _ := user.IsAuthenticated(); hasAuth {
-			userKey = user.Config().PublicAddress()
+		if user != nil {
+			userKey, err = user.SignerID()
+			if err != nil {
+				writeError(w, http.StatusConflict, err)
+				return
+			}
 		}
 		if userKey != "" {
 			verification, err = api.VerifyMatchingSignerIDWithFallback(hash, userKey)
@@ -71,14 +75,20 @@ func verify(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		writeErrorResponse(w, "verification error", err, http.StatusBadRequest)
+		writeError(w, http.StatusConflict, err)
 		return
 	}
 
+	name := ""
 	var artifact *api.ArtifactResponse
 	if !verification.Unknown() {
 		artifact, _ = api.LoadArtifact(user, hash, verification.MetaHash())
+		if artifact != nil {
+			name = artifact.Name
+		}
 	}
 
-	writeResponse(w, types.NewResult(nil, artifact, verification))
+	api.TrackVerify(user, hash, name)
+
+	writeResult(w, http.StatusOK, types.NewResult(nil, artifact, verification))
 }
